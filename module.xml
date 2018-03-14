@@ -1,0 +1,37 @@
+<module>
+	<rawname>callbackqueue</rawname>
+	<name>Itach Callback Queue</name>
+	<version>1.0.1</version>
+	<candisable>yes</candisable>
+	<canuninstall>yes</canuninstall>
+	<changelog>
+		*1.0.1* Original Release (beta)
+	</changelog>
+	<description>
+		Provides Callback queues options
+	</description>
+	<attention>
+	</attention>
+	<info>https://www.itach.by</info>
+	<category>Applications</category>
+	    <menuitems>
+		    <callbackqueue>Itach Callback Queue</callbackqueue>
+		</menuitems>
+	<publisher>Itach-soft</publisher>
+	<hooks>
+		<dashboard class="Overview" namespace="FreePBX\modules\Dashboard\Sections">
+			<method callingMethod="getSummary" class="Callbackqueue" namespace="FreePBX\Modules">dashboardService</method>
+		</dashboard>
+		<framework class="Start" namespace="FreePBX\Console\Command">
+			<method callingMethod="postAsteriskHooks" class="Callbackqueue" namespace="FreePBX\modules">startFreepbx</method>
+		</framework>
+		<framework class="Stop" namespace="FreePBX\Console\Command">
+			<method callingMethod="postAsteriskHooks" class="Callbackqueue" namespace="FreePBX\modules">stopFreepbx</method>
+		</framework>
+		<framework class="Chown" namespace="FreePBX\Console\Command">
+			<method callingMethod="fwcChownFiles" class="Callbackqueue" namespace="FreePBX\modules">chownFreepbx</method>
+		</framework>
+	</hooks>
+
+</module>
+
