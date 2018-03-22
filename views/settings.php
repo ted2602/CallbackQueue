@@ -8,6 +8,8 @@
 $heading = _("Settings");
 $licensekey=$callbackqueue->getlicense();
 $license = $callbackqueue->checklicense();
+$status = $callbackqueue->getStatus('callbackqueue');
+
 //var_export($license);
 
 
@@ -24,7 +26,6 @@ $license = $callbackqueue->checklicense();
                     <?php echo "<h6>" . _('Service settings') . "</h6>"; ?>
                     <div class="container-fluid">
                         <?php
-                        $status = $callbackqueue->getStatus('callbackqueue');
                         print '<pre>';
                         print_r(_('Callback PID') . ': ');
                         print_r($status['pid']);

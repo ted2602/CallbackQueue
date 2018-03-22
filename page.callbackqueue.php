@@ -12,7 +12,7 @@ $request=$_REQUEST;
 $heading=_("Callback queues module for FreePBX.");
 $callbackqueue=new FreePBX\modules\Callbackqueue;
 //print '<pre>';
-//print_r($callbackqueue->qc_getqueues());
+//print_r($callbackqueue->get_timegroup_data(2));
 //print '</pre>';
 ?>
 
@@ -57,11 +57,10 @@ switch ($request['view']) {
         echo ("<a href=?display=callbackqueue&view=settings class=\"btn btn-default\">");
         echo _("Settings");
         echo ("</a>");
-?>
+        ?>
 
 
-
-<table id="eripstat"
+<table id="callbackqueues"
                data-url="ajax.php?module=callbackqueue&command=getJSON&jdata=qc_queues"
                data-toolbar="#toolbar-main"
                data-cache="false"
@@ -80,6 +79,9 @@ switch ($request['view']) {
             <th data-field="qc_agentfirst" data-sortable="true"><?php echo _("First call agent") ?></th>
             <th data-field="qc_maxcalls" data-sortable="true"><?php echo _("Max calls store") ?></th>
             <th data-field="qc_minagents" data-sortable="true"><?php echo _("Min agents") ?></th>
+            <th data-field="qc_retry" data-sortable="true"><?php echo _("Maximum Retries") ?></th>
+            <th data-field="qc_timegroup_name" data-sortable="true"><?php echo _("Time Group") ?></th>
+            <th data-field="qc_callwait" data-sortable="true"><?php echo _("Call wait") ?></th>
             <th data-field="qc_edit" data-sortable="false" data-formatter="qc_edit"><?php echo _("Actions")?></th>
 
         </tr>

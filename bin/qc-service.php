@@ -12,49 +12,64 @@ include '/etc/freepbx.conf';
 global $amp_conf;
 global $db;
 
-
+require_once "../Callbackqueue.class.php";
+$callbackqueue=new FreePBX\modules\Callbackqueue;
 
 
 
 while (true) {
 $qc_calls=qc_getcalls($db);
-$qc_settings=get_qc_settings($db);
-var_export($qc_calls);
+
+//var_export($qc_calls);
 
 foreach ($qc_calls as $qc_call) {
     $call_id=$qc_call['call_id'];
-    $qc_settings=  get_qc_settings($db,$qc_call['qc_id']);
-    $qc_agents= (int) qc_check_agents($db,$qc_call['qc_id']);
+    $qc_settings=get_qc_settings($db,$qc_call['qc_id']);
+    $qc_retry= (int) $qc_settings['qc_retry'];
     $qc_minagents= (int) $qc_settings['qc_minagents'];
-    if ($qc_agents<$qc_minagents)
+    $call=(int) $qc_call['qc_call'];
+    $qc_status=$qc_call['status'];
+    $time=$callbackqueue->qc_checkIntervals($callbackqueue->get_timegroup_data($qc_settings['qc_timegroup']));
+    if ($call<$qc_retry AND $qc_status!='ANSWER' AND $time==true)
     {
-        //echo "No Dial\n";
-    }
-    else
-    {
-
-        //echo "Dial\n";
-        if ($qc_settings['qc_agentfirst']!=0)
+        $qc_agents= (int) qc_check_agents($db,$qc_call['qc_id']);
+        if ($qc_agents<$qc_minagents)
         {
-            $first=$qc_settings['qc_queue'];
-            $second=$qc_call['number'];
+           // echo "No Dial Agent\n";
         }
         else
         {
-            $second=$qc_settings['qc_queue'];
-            $first=$qc_call['number'];
+           // echo "Dial\n";
+            if ($qc_settings['qc_agentfirst'] != 0) {
+                $first = $qc_settings['qc_queue'];
+                $second = $qc_call['number'];
+            } else {
+                $second = $qc_settings['qc_queue'];
+                $first = $qc_call['number'];
+            }
+            //echo $qc_settings['qc_agentfirst']."\n";
+            $call=qc_call($amp_conf,$first,$second,$call_id);
+            //print_r($call);
+            usleep(2000000);
         }
-        //echo $qc_settings['qc_agentfirst']."\n";
-        $call=qc_call($amp_conf,$first,$second,$call_id);
-        //print_r($call);
+    }
+    else
+    {
+       // echo "No Dial\n";
+
     }
 
     //print '<pre>';
-    //print_r($qc_agents);
-    //print_r($qc_minagents);
+    //echo("Agents $qc_agents\n");
+    //echo("Retry $qc_retry\n");
+    //echo("Call $call\n");
+    //echo("time \n");
+    //var_export($time);
+    //echo("\n");
+
     //print '</pre>';
     //ждать 2 сек
-    usleep(2000000);
+
 
 
 }
@@ -93,18 +108,18 @@ function get_qc_settings($db,$qc_id='')
 }
 
 
-function qc_getcalls($db,$qc_id='')
+function qc_getcalls($db,$qc_id='',$qc_retry='')
 {
     if ($qc_id!='')
     {
-        $whereand=' and `qc_id`='.$qc_id.' ';
+        $whereand='where `qc_call`<'.$qc_retry.' and `qc_id`='.$qc_id.' ';
     }
     else
     {
         $whereand='';
     }
 
-    $sql="SELECT * FROM `qc_calls` where `call`=0 $whereand";
+    $sql="SELECT * FROM `qc_calls` $whereand";
     $res = $db->getAll($sql, DB_FETCHMODE_ASSOC);
     return $res;
 }
@@ -133,7 +148,7 @@ function qc_call($amp_conf,$first,$second,$call_id)
     fputs($oSocket, "MaxRetries: 0\r\n");
     fputs($oSocket, "Channel: $strChannel\r\n");
     fputs($oSocket, "WaitTime: $strWaitTime\r\n");
-    fputs($oSocket, "CallerId: $strCallerId\r\n");
+    fputs($oSocket, "CallerId: Callback $strCallerId\r\n");
     fputs($oSocket, "Exten: $second\r\n");
     fputs($oSocket, "Context: $strContext\r\n");
     fputs($oSocket, "Priority: $strPriority\r\n");

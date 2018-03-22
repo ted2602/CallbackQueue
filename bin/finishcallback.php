@@ -39,8 +39,8 @@ if (isset($options['qc_call'])) {
     $qc_call = $options['qc_call'];
 }
 
-var_export($options);
-var_export($dialstatus);
+//var_export($options);
+//var_export($dialstatus);
 finishcall($dialstatus,$qc_call,$datetime);
 
 
@@ -50,11 +50,11 @@ finishcall($dialstatus,$qc_call,$datetime);
 {
     global $db;
     $call=1;
-    $query = $db->prepare("UPDATE `qc_calls` SET `status`=:dialstatus, `datetime_out`=:datetime, `call`=:call WHERE `call_id` = :qc_call");
+    $query = $db->prepare("UPDATE `qc_calls` SET `status`=:dialstatus, `datetime_out`=:datetime, `qc_call`=`qc_call`+1 WHERE `call_id` = :qc_call");
 
     $query->bindParam(':dialstatus', $dialstatus);
     $query->bindParam(':qc_call', $qc_call);
     $query->bindParam(':datetime', $datetime);
-    $query->bindParam(':call', $call);
+    //$query->bindParam(':call', $call);
     $query->execute();
 }

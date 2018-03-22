@@ -37,6 +37,11 @@ $queues = $callbackqueue->getqueus();
 
 
 
+//print '<pre>';
+//print_r($callbackqueue->get_timegroup_data($qc_queues['qc_timegroup']));
+//print '</pre>';
+var_export($callbackqueue->qc_checkIntervals($callbackqueue->get_timegroup_data($qc_queues['qc_timegroup'])));
+
 
 ?>
 
@@ -199,6 +204,31 @@ $queues = $callbackqueue->getqueus();
                                     </div>
                                 </div>
                                 <!--Number max calls-->
+                                <!--Number max retry-->
+                                <div class="element-container">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    <div class="col-md-3">
+                                                        <label class="control-label" for="qc_retry"><?php echo(_("Maximum Retries"));?></label>
+                                                        <i class="fa fa-question-circle fpbx-help-icon"
+                                                           data-for="qc_retry"></i>
+                                                    </div>
+                                                    <div class="col-md-9 input">
+                                                        <input type="number" class="form-control " name="qc_retry" id="qc_retry" value="<?php echo $qc_queues['qc_retry']; ?>" >
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <span id="qc_retry-help" class="help-block fpbx-help-block"><?php echo(_("Enter the maximum number of retries on failed calls."));?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--Number max retry-->
                                 <!--Number min agents in queue-->
                                 <div class="element-container">
                                     <div class="row">
@@ -257,7 +287,48 @@ $queues = $callbackqueue->getqueus();
                                     </div>
                                 </div>
                                 <!-- END Направление для callback если больше параметра max agents !-->
+                                <!-- Время для callback-->
+                                <div class="element-container">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    <div class="col-md-3">
+                                                        <label class="control-label" for="qc_timegroup"><?php echo(_("Time Group"));?></label>
+                                                        <i class="fa fa-question-circle fpbx-help-icon"
+                                                           data-for="qc_timegroup"></i>
+                                                    </div>
+                                                    <div class="col-md-9">
+                                                        <?php
+                                                          echo qc_timegroups_drawgroupselect('qc_timegroup', (isset($qc_queues['qc_timegroup']) ? $qc_queues['qc_timegroup'] : ''), true, '');
+                                                         ?>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <span id="qc_timegroup-help" class="help-block fpbx-help-block"><?php echo(_("Select a Time Group created under Time Groups. Matching times will be sent to matching destination. If no group is selected, call will always go to no-match destination."));?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Время для callback !-->
+
+                                <div class="element-container">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    <div class="col-md-3">
                                 <input type="submit" name="submit" value="<?php echo(_("Submit")); ?>">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </form>
                         </div>
                     </div>

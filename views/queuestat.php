@@ -30,7 +30,7 @@ $heading=_("Statistics");
                 <th data-field="datetime_in" data-sortable="true"><?php echo _("Datetime callback out in") ?></th>
                 <th data-field="datetime_out" data-sortable="true"><?php echo _("Datetime callback finish") ?></th>
                 <th data-field="status" data-sortable="true"><?php echo _("Status") ?></th>
-                <th data-field="call" data-sortable="true"><?php echo _("Call 0-no, 1-yes") ?></th>
+                <th data-field="qc_call" data-sortable="true"><?php echo _("Call Retries") ?></th>
 
             </tr>
             </thead>

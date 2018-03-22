@@ -282,13 +282,15 @@ class Callbackqueue implements \BMO
     {
         global $db;
         $qc_callbackdest=isset($_REQUEST[$_REQUEST['goto0'].'0']) ? $_REQUEST[$_REQUEST['goto0'].'0'] : "";
-        $query = $this->db->prepare("INSERT INTO `qc_queues`(`qc_name`, `qc_queue`, `qc_agentfirst`, `qc_maxcalls`, `qc_minagents`,`qc_callbackdest`) VALUES (:qc_name,:qc_queue,:qc_agentfirst,:qc_maxcalls,:qc_minagents,:qc_callbackdest)");
+        $query = $this->db->prepare("INSERT INTO `qc_queues`(`qc_name`, `qc_queue`, `qc_agentfirst`, `qc_maxcalls`, `qc_minagents`,`qc_callbackdest`,`qc_retry`,`qc_timegroup`) VALUES (:qc_name,:qc_queue,:qc_agentfirst,:qc_maxcalls,:qc_minagents,:qc_callbackdest,:qc_retry,:qc_timegroup)");
         $query->bindParam(':qc_name', $request['qc_name']);
         $query->bindParam(':qc_queue', $request['qc_queue']);
         $query->bindParam(':qc_agentfirst', $request['qc_first']);
         $query->bindParam(':qc_maxcalls', $request['qc_maxcalls']);
         $query->bindParam(':qc_minagents', $request['qc_minagents']);
         $query->bindParam(':qc_callbackdest', $qc_callbackdest);
+        $query->bindParam(':qc_retry', $request['qc_retry']);
+        $query->bindParam(':qc_timegroup', $request['qc_timegroup']);
         $query->execute();
     }
     public function edit_qc($request)
@@ -296,7 +298,7 @@ class Callbackqueue implements \BMO
         global $db;
         $qc_callbackdest=isset($_REQUEST[$_REQUEST['goto0'].'0']) ? $_REQUEST[$_REQUEST['goto0'].'0'] : "";
 
-        $query = $this->db->prepare("UPDATE `qc_queues` SET `qc_name`=:qc_name, `qc_queue`=:qc_queue, `qc_agentfirst`=:qc_agentfirst, `qc_maxcalls`=:qc_maxcalls, `qc_minagents`=:qc_minagents, `qc_callbackdest`=:qc_callbackdest WHERE `qc_id` = :qc_id");
+        $query = $this->db->prepare("UPDATE `qc_queues` SET `qc_name`=:qc_name, `qc_queue`=:qc_queue, `qc_agentfirst`=:qc_agentfirst, `qc_maxcalls`=:qc_maxcalls, `qc_minagents`=:qc_minagents, `qc_callbackdest`=:qc_callbackdest, `qc_retry`=:qc_retry, `qc_timegroup`=:qc_timegroup WHERE `qc_id` = :qc_id");
 
         $query->bindParam(':qc_id', $request['qc_id']);
         $query->bindParam(':qc_name', $request['qc_name']);
@@ -305,6 +307,8 @@ class Callbackqueue implements \BMO
         $query->bindParam(':qc_maxcalls', $request['qc_maxcalls']);
         $query->bindParam(':qc_minagents', $request['qc_minagents']);
         $query->bindParam(':qc_callbackdest', $qc_callbackdest);
+        $query->bindParam(':qc_retry', $request['qc_retry']);
+        $query->bindParam(':qc_timegroup', $request['qc_timegroup']);
         $query->execute();
     }
     public function qc_getqueues($qc_id='')
@@ -320,6 +324,14 @@ class Callbackqueue implements \BMO
         }
         $sql="SELECT * FROM `qc_queues` $qc_where";
         $res = $db->getAll($sql, DB_FETCHMODE_ASSOC);
+        $i=0;
+        foreach ($res as $queue)
+        {
+            $res[$i]['qc_timegroup_name']=$this->get_timegroup_name($queue['qc_timegroup']);
+            $res[$i]['qc_callwait']=$this->qc_callwait($queue['qc_id'],$queue['qc_retry']);
+            $i++;
+        }
+
         return $res;
     }
 
@@ -329,6 +341,13 @@ class Callbackqueue implements \BMO
         $query->bindParam(':qc_id', $request['qc_id'], \PDO::PARAM_STR);
         $query->execute();
 
+    }
+    public function qc_callwait($qc_id,$qc_retry)
+    {
+        global $db;
+        $sql="SELECT COUNT(call_id) FROM `qc_calls` where `qc_call`<$qc_retry and qc_id=$qc_id and `status`!='ANSWER'";
+        $res = $db->getrow($sql, DB_FETCHMODE_ASSOC);
+        return $res['COUNT(call_id)'];
     }
     public function qc_getcalls($qc_id='')
     {
@@ -354,9 +373,94 @@ class Callbackqueue implements \BMO
         $res = $db->getrow($sql, DB_FETCHMODE_ASSOC);
         return $res['licensekey'];
     }
-    public function updatelicense($licensekey)
+    public function get_timegroup_name($qc_timegroup)
     {
         global $db;
+        $sql="SELECT `description` FROM `timegroups_groups` where id='$qc_timegroup'";
+        $res = $db->getrow($sql, DB_FETCHMODE_ASSOC);
+        return $res['description'];
+    }
+    public function get_timegroup_data($qc_timegroup)
+    {
+        global $db;
+        $sql="SELECT * FROM `timegroups_details` WHERE `timegroupid` ='$qc_timegroup'";
+        $res = $db->getAll($sql, DB_FETCHMODE_ASSOC);
+        return $res;
+    }
+    public function qc_checkIntervals($intervals)
+    {
+        foreach ($intervals as $int){
+            //var_export($this->qc_checkIntervalDate($int['time']));
+            if ($this->qc_checkIntervalDate($int['time'])){
+                return true;
+            }
+        }
+        return false;
+    }
+    public function qc_checkIntervalDate($interval, $timestamp = null)
+    {
+
+
+    //echo $interval . PHP_EOL;
+//    echo date('H:i | N (D) | m (F) | d', $timestamp);
+
+            if (empty($timestamp)) {
+                $timestamp = time();
+            }
+
+            list($timeInterval, $dayOfWeekInterval, $monthDayInterval, $monthInterval) = explode('|', $interval);
+
+            // Check Time interval
+            if ($timeInterval != '*') {
+                list($from, $to) = explode('-', $timeInterval);
+                if (date('Hi', $timestamp) < str_replace(':', '', $from)) {
+                    return false;
+                }
+                if (date('Hi', $timestamp) > str_replace(':', '', $to)) {
+                    return false;
+                }
+            }
+
+            // Check day of week interval
+            if ($dayOfWeekInterval != '*') {
+                $mapping = array('mon' => 1, 'tue' => 2, 'wed' => 3, 'thu' => 4, 'fri' => 5, 'sat' => 6, 'sun' => 7);
+                list($from, $to) = explode('-', $dayOfWeekInterval);
+                if (date('N', $timestamp) < $mapping[$from]) {
+                    return false;
+                }
+                if (date('N', $timestamp) > $mapping[$to]) {
+                    return false;
+                }
+            }
+            // Check day of month interval
+            if ($monthDayInterval != '*') {
+
+                list($from, $to) = explode('-', $monthDayInterval);
+                if (date('d', $timestamp) < $from) {
+                    return false;
+                }
+                if (date('d', $timestamp) > $to) {
+                    return false;
+                }
+            }
+
+            // Check month interval
+            if ($monthInterval != '*') {
+                list($from, $to) = explode('-', $monthInterval);
+                if (date('m', $timestamp) < date('m', strtotime($from))) {
+                    return false;
+                }
+                if (date('m', $timestamp) > date('m', strtotime($to))) {
+                    return false;
+                }
+            }
+
+            return true;
+
+    }
+
+    public function updatelicense($licensekey)
+    {
 
         $query = $this->db->prepare("UPDATE `qc_settings` SET `licensekey`=:licensekey");
         $query->bindParam(':licensekey', $licensekey);
