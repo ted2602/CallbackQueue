@@ -12,9 +12,6 @@ include '/etc/freepbx.conf';
 global $amp_conf;
 global $db;
 
-require_once "../Callbackqueue.class.php";
-$callbackqueue=new FreePBX\modules\Callbackqueue;
-
 
 
 while (true) {
@@ -29,7 +26,7 @@ foreach ($qc_calls as $qc_call) {
     $qc_minagents= (int) $qc_settings['qc_minagents'];
     $call=(int) $qc_call['qc_call'];
     $qc_status=$qc_call['status'];
-    $time=$callbackqueue->qc_checkIntervals($callbackqueue->get_timegroup_data($qc_settings['qc_timegroup']));
+    $time=qc_checkIntervals(get_timegroup_data($qc_settings['qc_timegroup']));
     if ($call<$qc_retry AND $qc_status!='ANSWER' AND $time==true)
     {
         $qc_agents= (int) qc_check_agents($db,$qc_call['qc_id']);
@@ -157,4 +154,83 @@ function qc_call($amp_conf,$first,$second,$call_id)
     fputs($oSocket, "Action: logoff \r\n\r\n");
     sleep (1);
     fclose($oSocket);
+}
+
+function qc_checkIntervals($intervals)
+{
+    foreach ($intervals as $int){
+        //var_export($this->qc_checkIntervalDate($int['time']));
+        if (qc_checkIntervalDate($int['time'])){
+            return true;
+        }
+    }
+    return false;
+}
+function qc_checkIntervalDate($interval, $timestamp = null)
+{
+
+
+    //echo $interval . PHP_EOL;
+//    echo date('H:i | N (D) | m (F) | d', $timestamp);
+
+    if (empty($timestamp)) {
+        $timestamp = time();
+    }
+
+    list($timeInterval, $dayOfWeekInterval, $monthDayInterval, $monthInterval) = explode('|', $interval);
+
+    // Check Time interval
+    if ($timeInterval != '*') {
+        list($from, $to) = explode('-', $timeInterval);
+        if (date('Hi', $timestamp) < str_replace(':', '', $from)) {
+            return false;
+        }
+        if (date('Hi', $timestamp) > str_replace(':', '', $to)) {
+            return false;
+        }
+    }
+
+    // Check day of week interval
+    if ($dayOfWeekInterval != '*') {
+        $mapping = array('mon' => 1, 'tue' => 2, 'wed' => 3, 'thu' => 4, 'fri' => 5, 'sat' => 6, 'sun' => 7);
+        list($from, $to) = explode('-', $dayOfWeekInterval);
+        if (date('N', $timestamp) < $mapping[$from]) {
+            return false;
+        }
+        if (date('N', $timestamp) > $mapping[$to]) {
+            return false;
+        }
+    }
+    // Check day of month interval
+    if ($monthDayInterval != '*') {
+
+        list($from, $to) = explode('-', $monthDayInterval);
+        if (date('d', $timestamp) < $from) {
+            return false;
+        }
+        if (date('d', $timestamp) > $to) {
+            return false;
+        }
+    }
+
+    // Check month interval
+    if ($monthInterval != '*') {
+        list($from, $to) = explode('-', $monthInterval);
+        if (date('m', $timestamp) < date('m', strtotime($from))) {
+            return false;
+        }
+        if (date('m', $timestamp) > date('m', strtotime($to))) {
+            return false;
+        }
+    }
+
+    return true;
+
+}
+function get_timegroup_data($qc_timegroup)
+{
+    global $db;
+    $sql="SELECT * FROM `timegroups_details` WHERE `timegroupid` ='$qc_timegroup'";
+    $res = $db->getAll($sql, DB_FETCHMODE_ASSOC);
+    return $res;
 }

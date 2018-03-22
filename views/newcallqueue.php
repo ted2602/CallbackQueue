@@ -40,7 +40,7 @@ $queues = $callbackqueue->getqueus();
 //print '<pre>';
 //print_r($callbackqueue->get_timegroup_data($qc_queues['qc_timegroup']));
 //print '</pre>';
-var_export($callbackqueue->qc_checkIntervals($callbackqueue->get_timegroup_data($qc_queues['qc_timegroup'])));
+//var_export($callbackqueue->qc_checkIntervals($callbackqueue->get_timegroup_data($qc_queues['qc_timegroup'])));
 
 
 ?>
