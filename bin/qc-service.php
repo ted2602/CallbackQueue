@@ -15,11 +15,19 @@ global $db;
 
 
 while (true) {
-$qc_calls=qc_getcalls($db);
+$qc_calls=qc_getcalls();
 
 //var_export($qc_calls);
+$call_id='';
+$qc_settings='';
+$qc_retry='';
+$qc_minagents='';
+$call='';
+$qc_status='';
+$time='';
 
 foreach ($qc_calls as $qc_call) {
+    //var_export($qc_call);
     $call_id=$qc_call['call_id'];
     $qc_settings=get_qc_settings($db,$qc_call['qc_id']);
     $qc_retry= (int) $qc_settings['qc_retry'];
@@ -27,41 +35,64 @@ foreach ($qc_calls as $qc_call) {
     $call=(int) $qc_call['qc_call'];
     $qc_status=$qc_call['status'];
     $time=qc_checkIntervals(get_timegroup_data($qc_settings['qc_timegroup']));
-    if ($call<$qc_retry AND $qc_status!='ANSWER' AND $time==true)
+    if ($qc_status!='ANSWER')
     {
-        $qc_agents= (int) qc_check_agents($db,$qc_call['qc_id']);
-        if ($qc_agents<$qc_minagents)
-        {
-           // echo "No Dial Agent\n";
+        //echo '$qc_status '.$qc_status."\n";
+
+
+        if ($call<$qc_retry) {
+           // echo '$call '.$call."\n";
+           // echo '$qc_retry '.$qc_retry."\n";
+
+
+            if ($time==true) {
+
+
+                $qc_agents = (int)qc_check_agents($db, $qc_call['qc_id']);
+            if ($qc_agents < $qc_minagents) {
+              //   echo "No Dial Agent\n";
+            } else {
+                // echo "Dial\n";
+                if ($qc_settings['qc_agentfirst'] != 0) {
+                    $first = $qc_settings['qc_queue'];
+                    $second = $qc_call['number'];
+                } else {
+                    $second = $qc_settings['qc_queue'];
+                    $first = $qc_call['number'];
+                }
+                //echo $qc_settings['qc_agentfirst']."\n";
+                $call = qc_call($amp_conf, $first, $second, $call_id);
+                //print_r($call);
+                usleep(2000000);
+                }
+            }
+            else
+            {
+                // echo "No Dial\n";
+            }
         }
         else
         {
-           // echo "Dial\n";
-            if ($qc_settings['qc_agentfirst'] != 0) {
-                $first = $qc_settings['qc_queue'];
-                $second = $qc_call['number'];
-            } else {
-                $second = $qc_settings['qc_queue'];
-                $first = $qc_call['number'];
-            }
-            //echo $qc_settings['qc_agentfirst']."\n";
-            $call=qc_call($amp_conf,$first,$second,$call_id);
-            //print_r($call);
-            usleep(2000000);
+            $finish=true;
+            finishcall($qc_call['call_id'],$finish);
+            // echo "No Dial\n";
+
         }
-    }
-    else
-    {
-       // echo "No Dial\n";
 
     }
+    else {
+        $finish = true;
+        finishcall($qc_call['call_id'], $finish);
+        // echo "No Dial\n";
+    }
 
-    //print '<pre>';
+
+        //print '<pre>';
     //echo("Agents $qc_agents\n");
     //echo("Retry $qc_retry\n");
     //echo("Call $call\n");
     //echo("time \n");
-    //var_export($time);
+    //var_export($  time);
     //echo("\n");
 
     //print '</pre>';
@@ -105,18 +136,13 @@ function get_qc_settings($db,$qc_id='')
 }
 
 
-function qc_getcalls($db,$qc_id='',$qc_retry='')
+function qc_getcalls()
 {
-    if ($qc_id!='')
-    {
-        $whereand='where `qc_call`<'.$qc_retry.' and `qc_id`='.$qc_id.' ';
-    }
-    else
-    {
-        $whereand='';
-    }
+    global $db;
+    $finish='false';
 
-    $sql="SELECT * FROM `qc_calls` $whereand";
+
+    $sql="SELECT * FROM `qc_calls` where `finish`= $finish";
     $res = $db->getAll($sql, DB_FETCHMODE_ASSOC);
     return $res;
 }
@@ -233,4 +259,15 @@ function get_timegroup_data($qc_timegroup)
     $sql="SELECT * FROM `timegroups_details` WHERE `timegroupid` ='$qc_timegroup'";
     $res = $db->getAll($sql, DB_FETCHMODE_ASSOC);
     return $res;
+}
+
+function finishcall($qc_call,$finish)
+{
+    global $db;
+    $query = $db->prepare("UPDATE `qc_calls` SET `finish`=:finish WHERE `call_id` = :qc_call");
+
+    $query->bindParam(':finish', $finish);
+    $query->bindParam(':qc_call', $qc_call);
+    //$query->bindParam(':call', $call);
+    $query->execute();
 }

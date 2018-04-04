@@ -37,7 +37,7 @@ $astman->SetVar($channel,'QCMAXcountmax',$maxcalls);
  function qc_callwait($qc_id,$qc_retry)
 {
     global $db;
-    $sql="SELECT COUNT(call_id) FROM `qc_calls` where `qc_call`<$qc_retry and qc_id=$qc_id and `status`!='ANSWER'";
+    $sql="SELECT COUNT(call_id) FROM `qc_calls` where `qc_call`<$qc_retry and qc_id=$qc_id and `status`!='ANSWER' and `finish`=false";
    // var_export($sql);
     $res = $db->getrow($sql, DB_FETCHMODE_ASSOC);
 
