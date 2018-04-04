@@ -29,8 +29,8 @@ CREATE TABLE IF NOT EXISTS `qc_calls` (
   `datetime_out` datetime DEFAULT NULL,
   `qc_call` int(11) NOT NULL DEFAULT '0',
   `status` varchar(255) COLLATE utf8_unicode_ci DEFAULT '',
-  PRIMARY KEY (`call_id`),
-  UNIQUE KEY `uniqueid` (`uniqueid`)
+  `finish` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`call_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 
