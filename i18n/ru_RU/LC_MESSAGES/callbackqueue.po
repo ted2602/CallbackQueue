@@ -1,0 +1,205 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ru_RU\n"
+"X-Generator: Poedit 1.8.4\n"
+
+#: page.autodial.php:11
+msgid "Main"
+msgstr "Старт"
+
+msgid "Bitrix24 Settings"
+msgstr "Настройки Битрикс24"
+
+msgid "Bitrix24 Users"
+msgstr "Пользователи Битрикс24"
+
+msgid "Call tracking"
+msgstr "Рекламные каналы"
+
+msgid "Other Settings"
+msgstr "Прочие настройки"
+
+msgid "CDR Statistics"
+msgstr "Статистика звонков"
+
+msgid "Bitrix24 connection successful"
+msgstr "Bitrix24 соединение успешно"
+
+msgid "Bitrix24 connection failure. Please check settings."
+msgstr "Bitrix24 ошибка подключения. Пожалуйста, проверьте настройки."
+
+msgid "Application ID"
+msgstr "ID приложения"
+
+msgid "Enter Application ID"
+msgstr "Введите идентификатор приложения"
+
+msgid "Application Secret"
+msgstr "Введите пароль для этого приложения"
+
+msgid "Specify the secret key to sing requests"
+msgstr "Вы должны ввести секретный ключ"
+
+msgid "Scope"
+msgstr "Область"
+
+msgid "Specify the array containing permissions available to the application"
+msgstr "Указать массив, содержащий разрешения, доступные для приложения"
+
+msgid "Bitrix24 domain"
+msgstr "Bitrix24 домен"
+
+msgid "Specify the bitrix24 server address"
+msgstr "Укажите адрес сервера bitrix24"
+
+msgid "Bitrix24 login"
+msgstr "Bitrix24 вход"
+
+msgid "Specify the bitrix24 login"
+msgstr "Укажите логин bitrix24"
+
+msgid "Bitrix24 password"
+msgstr "Bitrix24 пароль"
+
+msgid "Specify the bitrix24 password"
+msgstr "Укажите пароль к bitrix24"
+
+msgid "REDIRECT_URI"
+msgstr "REDIRECT_URI"
+
+msgid "Specify the URL of a script that will receive and process the server response like \"https://demo.bitrix24.com\""
+msgstr "Укажите URL-адрес сервера, который будет получать запросы, например «https://demo.bitrix24.com»"
+
+msgid "REDIRECT_PATH"
+msgstr "REDIRECT_PATH"
+
+msgid "Specify the PATH of a script that will receive and process the server response like \"/bitrix24/\""
+msgstr "Укажите путь к папке на сервере, который будет получать запросы, например \"/bitrix24/\""
+
+msgid "RECORD_URL"
+msgstr "RECORD_URL"
+
+msgid "Specify the URL of a recordings like \"https://site.com/recordings\""
+msgstr "Укажите URL-адрес для файлов записи как «https://site.com/recordings»"
+
+msgid "Name"
+msgstr "Имя"
+
+msgid "Last Name"
+msgstr "Фамилия"
+
+msgid "Email"
+msgstr "Эл. ящик:"
+
+msgid "Extension"
+msgstr "Внутренний номер"
+
+msgid "Bitrix24 Sources"
+msgstr "Bitrix24 источники"
+
+msgid "DID"
+msgstr "DID"
+
+msgid "Action"
+msgstr "Действие"
+
+msgid "Delete"
+msgstr "Удалить"
+
+msgid "Select Bitrix24 Sources"
+msgstr "Выберите источники Bitrix24"
+
+msgid "Select DID"
+msgstr "Выберете DID"
+
+msgid "Active Event"
+msgstr "Active Event"
+
+msgid "The event handler is called whenever a user clicks the phone number in a CRM item user interface to initiate an outbound call."
+msgstr "Вызывается, когда пользователь нажимает на телефонный номер в объектах CRM для совершения исходящего звонка."
+
+msgid "Default user "
+msgstr "Пользователь по умолчанию"
+
+msgid "Default user to register call in Bitrix24"
+msgstr "Пользователь по умолчанию для регистрации звонков в Bitrix24"
+
+msgid "Client number"
+msgstr "Клиентский номер"
+
+msgid "Client Name"
+msgstr "Имя клиента"
+
+msgid "Client Last Name"
+msgstr "Фамилия клиента"
+
+msgid "Client Company"
+msgstr "КОМПАНИЯ КЛИЕНТА"
+
+msgid "Incoming DID"
+msgstr "Входящий номер"
+
+msgid "Operator"
+msgstr "Оператор"
+
+msgid "Time in"
+msgstr "Время звонка"
+
+msgid "Time finish"
+msgstr "Время окончания"
+
+msgid "Direction"
+msgstr "Направление"
+
+msgid "Is first call?"
+msgstr "Это первый вызов?"
+
+msgid "Record"
+msgstr "Запись"
+
+msgid "Your Itach-soft licensekey"
+msgstr "Ваш лицензионный ключ от Itach-soft"
+
+msgid "Enter licensekey from Itach-soft"
+msgstr "Введите ваш лицензионный ключ от Itach-soft"
+
+msgid "Server auth"
+msgstr "Сервер авторизации битрикс"
+
+msgid "Specify the URL of authorization server \"https://www.bitrix24.net/auth/\""
+msgstr "Укажите сервер авторизации битрикс, по-умолчанию https://www.bitrix24.net/auth/"
+
+msgid "Active Event Click2Call"
+msgstr "Активна ли функция Click2Call из CRM"
+
+msgid "Yes"
+msgstr "Да"
+
+msgid "No"
+msgstr "Нет"
+
+msgid "Active Event Callback"
+msgstr "Активна ли функция обратного звонка из CRM"
+
+msgid "Callback destination"
+msgstr "Направление при обратном звонке"
+
+msgid "Default user"
+msgstr "Пользователь по-умолчанию"
+
+msgid "Call to assigned user first"
+msgstr "Первого набираем отвественного"
+
+msgid "Change assigned user after answer"
+msgstr "Меняем отвественного после вызова на ответевшего"
+
+msgid "Phone code"
+msgstr ""
