@@ -94,8 +94,8 @@ function callbackqueue_hookGet_config($engine)
             foreach ($qc_queues as $qc_queue) {
                 $context = 'qc-callback-' . $qc_queue['qc_id'];
                 $exten = 's';
-
-                $ext->add($context, $exten, '', new ext_noop('Queue callback module call ${CHANNEL(linkedid)} number ${CALLERID(num)}'));
+//Def set
+/*                $ext->add($context, $exten, '', new ext_noop('Queue callback module call ${CHANNEL(linkedid)} number ${CALLERID(num)}'));
                 $ext->add($context, $exten, '', new ext_setvar('QCnumber', '${CALLERID(num)}'));
                 $ext->add($context, $exten, '', new ext_AGI($webroot . '/admin/modules/callbackqueue/bin/qc_agi.php,' . $qc_queue['qc_id'] . ',${CHANNEL}'));
                 $ext->add($context, $exten, '', new ext_DumpChan('3'));
@@ -137,12 +137,48 @@ function callbackqueue_hookGet_config($engine)
 
                 $ext->add($context, 'i', '', new ext_goto('qc-callback-' . $qc_queue['qc_id'] . ',s,1'));
 
+                $ext->add($context, 't', '', new ext_hangup());*/
+
+
+//ERIP SET
+//
+                $ext->add($context, $exten, '', new ext_noop('Queue callback module call ${CHANNEL(linkedid)} number ${CALLERID(num)}'));
+                $ext->add($context, $exten, '', new ext_setvar('QCnumber', '${CALLERID(num)}'));
+                $ext->add($context, $exten, '', new ext_AGI($webroot . '/admin/modules/callbackqueue/bin/qc_agi.php,' . $qc_queue['qc_id'] . ',${CHANNEL}'));
+                $ext->add($context, $exten, '', new ext_DumpChan('3'));
+                $ext->add($context, $exten, '', new ext_gotoif('$["${QCMAX}"!="call"]', 'defroute'));
+
+
+                $ext->add($context, $exten, '', new ext_setvar('QCFirst', '1'));
+                $ext->add($context, $exten, '', new ext_setvar('CHANNEL(hangup_handler_push)', 'qc-callback-add' . $qc_queue['qc_id'] . ',s,1'));
+                $ext->add($context, $exten, '', new ext_Background($webroot . '/admin/modules/callbackqueue/sounds/erip_zanat_priv2'));
+                $ext->add($context, $exten, '', new ext_DigitTimeout('1'));
+                $ext->add($context, $exten, '', new ext_WaitExten(8));
+                $ext->add($context, $exten, '', new ext_hangup());
+
+                $ext->add($context, $exten, 'defroute', new ext_goto($qc_queue['qc_callbackdest']));
+
+                $ext->add($context, 1, '', new ext_setvar('CHANNEL(hangup_handler_push)', 'qc-callback-noadd' . $qc_queue['qc_id'] . ',s,1'));
+                $ext->add($context, 1, '', new ext_hangup());
+
+                $ext->add($context, 2, '', new ext_DigitTimeout('5'));
+                $ext->add($context, 2, '', new ext_WaitExten(8));
+
+
+
+                $ext->add($context, 'i', '', new ext_hangup());
+
                 $ext->add($context, 't', '', new ext_hangup());
 
+//ERIP SET end
                 $context = 'qc-callback-add' . $qc_queue['qc_id'];
                 $exten = 's';
                 $ext->add($context, 's', '', new ext_system('php ' . $webroot . '/admin/modules/callbackqueue/bin/addcallback.php --qc_id="' . $qc_queue['qc_id'] . '" --id="${CHANNEL(linkedid)}" --number="${QCnumber}" --datetime="${STRFTIME(${EPOCH},,%Y-%m-%d %H:%M:%S)}" >/dev/null 2>/dev/null &'));
                 $ext->add($context, $exten, '', new ext_return(''));
+
+                $context = 'qc-callback-noadd' . $qc_queue['qc_id'];
+                $exten = 's';
+                $ext->add($context, $exten, '', new ext_hangup());
 
 
                 //Call finish handler
@@ -153,7 +189,7 @@ function callbackqueue_hookGet_config($engine)
                 $ext->add($context, $exten, '', new ext_noop('qc-callback-dial register handler call'));
                 $ext->add($context, $exten, '', new ext_setvar('CHANNEL(hangup_handler_push)', 'qc-callback-finish,s,1'));
                 $ext->add($context, $exten, '', new ext_wait('2'));
-                $ext->add($context, $exten, '', new ext_playback('/var/lib/asterisk/sounds/ru/followme/pls-hold-while-try'));
+                $ext->add($context, $exten, '', new ext_playback($webroot . '/admin/modules/callbackqueue/sounds/eip_obratny_priv3'));
                 $ext->add($context, $exten, '', new ext_goto('from-internal,${EXTEN},1'));
 
                 //$ext->add($context, $exten, '', new ext_system('php '.$webroot.'/bitrix24/api.php --status "'.$status.'" --id="${CHANNEL(linkedid)}"  --did="Callback" --number="${CALLERID(num)}" --datetime="${STRFTIME(${EPOCH},,%Y-%m-%d %H:%M:%S)}" >/dev/null 2>/dev/null &'));

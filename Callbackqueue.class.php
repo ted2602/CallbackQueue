@@ -345,7 +345,7 @@ class Callbackqueue implements \BMO
     public function qc_callwait($qc_id,$qc_retry)
     {
         global $db;
-        $sql="SELECT COUNT(call_id) FROM `qc_calls` where `qc_call`<$qc_retry and qc_id=$qc_id and `status`!='ANSWER'";
+        $sql="SELECT COUNT(call_id) FROM `qc_calls` where `finish` = '0' and `qc_id` = $qc_id";
         $res = $db->getrow($sql, DB_FETCHMODE_ASSOC);
         return $res['COUNT(call_id)'];
     }
